@@ -6,8 +6,6 @@ Simple REST API for managing events and categories.
 
 This milestone includes setting up the Express.js project with TypeScript and creating the foundation for event and category management.
 
-### What We're Building
-
 **Event Management**
 - Create new events with details like name, date, location, and capacity
 - View all events
@@ -18,15 +16,6 @@ This milestone includes setting up the Express.js project with TypeScript and cr
 - Create event categories
 - View all categories
 - Future: Get, update, and delete categories
-
-### Technologies Used
-
-- Express.js framework
-- TypeScript for type safety
-- CORS for cross-origin requests
-- Morgan for request logging
-- Jest for testing
-- In-memory storage for now
 
 ## Getting Started
 
