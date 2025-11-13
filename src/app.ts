@@ -2,6 +2,8 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import eventRoutes from './routes/eventRoutes';
+import categoryRoutes from './routes/categoryRoutes';
 
 dotenv.config();
 
@@ -19,5 +21,9 @@ app.get('/health', (_req: Request, res: Response) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// API Routes
+app.use('/api/v1/events', eventRoutes);
+app.use('/api/v1/categories', categoryRoutes);
 
 export default app;
