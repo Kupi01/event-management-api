@@ -2,8 +2,8 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import eventRoutes from './routes/eventRoutes';
-import categoryRoutes from './routes/categoryRoutes';
+import eventRoutes from './api/v1/routes/eventRoutes';
+import categoryRoutes from './api/v1/routes/categoryRoutes';
 
 dotenv.config();
 
