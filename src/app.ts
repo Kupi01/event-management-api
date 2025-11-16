@@ -5,6 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '../config/swagger';
 import eventRoutes from './api/v1/routes/eventRoutes';
 import categoryRoutes from './api/v1/routes/categoryRoutes';
+import attendeeRoutes from './api/v1/routes/attendeeRoutes';
 
 const app: Express = express();
 
@@ -48,5 +49,6 @@ app.get('/health', (_req: Request, res: Response) => {
 // API Routes
 app.use('/api/v1', eventRoutes);
 app.use('/api/v1', categoryRoutes);
+app.use('/api/v1', attendeeRoutes);
 
 export default app;
