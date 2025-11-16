@@ -1,32 +1,117 @@
-import { Router, Request, Response } from 'express';
-import { CategoryController } from '../controllers/categoryController';
+import express, { Router } from 'express';
+import {
+  getAllCategories,
+  getCategoryById,
+  createCategory,
+  updateCategory,
+  deleteCategory
+} from '../controllers/categoryController';
 
-const router = Router();
-const categoryController = new CategoryController();
+const router: Router = express.Router();
 
-// GET all categories
-router.get('/', async (req: Request, res: Response) => {
-  await categoryController.getAllCategories(req, res);
-});
+/**
+ * @swagger
+ * /api/v1/categories:
+ *   get:
+ *     summary: Get all categories
+ *     tags: [Categories]
+ *     description: Retrieve a list of all categories
+ *     responses:
+ *       200:
+ *         description: List of categories retrieved successfully
+ */
+router.get('/categories', getAllCategories);
 
-// GET category by ID
-router.get('/:id', async (req: Request, res: Response) => {
-  await categoryController.getCategoryById(req, res);
-});
+/**
+ * @swagger
+ * /api/v1/categories/{id}:
+ *   get:
+ *     summary: Get category by ID
+ *     tags: [Categories]
+ *     description: Retrieve a specific category by its ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category found
+ *       404:
+ *         description: Category not found
+ */
+router.get('/categories/:id', getCategoryById);
 
-// POST create category
-router.post('/', async (req: Request, res: Response) => {
-  await categoryController.createCategory(req, res);
-});
+/**
+ * @swagger
+ * /api/v1/categories:
+ *   post:
+ *     summary: Create a new category
+ *     tags: [Categories]
+ *     description: Create a new category
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Category created successfully
+ */
+router.post('/categories', createCategory);
 
-// PUT update category
-router.put('/:id', async (req: Request, res: Response) => {
-  await categoryController.updateCategory(req, res);
-});
+/**
+ * @swagger
+ * /api/v1/categories/{id}:
+ *   put:
+ *     summary: Update a category
+ *     tags: [Categories]
+ *     description: Update an existing category by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *       404:
+ *         description: Category not found
+ */
+router.put('/categories/:id', updateCategory);
 
-// DELETE category
-router.delete('/:id', async (req: Request, res: Response) => {
-  await categoryController.deleteCategory(req, res);
-});
+/**
+ * @swagger
+ * /api/v1/categories/{id}:
+ *   delete:
+ *     summary: Delete a category
+ *     tags: [Categories]
+ *     description: Delete a category by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *       404:
+ *         description: Category not found
+ */
+router.delete('/categories/:id', deleteCategory);
 
 export default router;
