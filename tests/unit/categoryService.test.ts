@@ -1,6 +1,6 @@
 import * as categoryService from '../../src/api/v1/services/categoryService';
 import { categories } from '../../src/data/category';
-import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../src/api/v1/models/Category';
+import { Category } from '../../src/api/v1/models/Category';
 
 // Clear the categories array before each test
 beforeEach(() => {
@@ -100,7 +100,7 @@ describe('Category Service - Unit Tests', () => {
 
   describe('createCategory', () => {
     it('should create a new category with required fields', () => {
-      const categoryData: CreateCategoryRequest = {
+      const categoryData: any = {
         name: 'New Category'
       };
 
@@ -114,7 +114,7 @@ describe('Category Service - Unit Tests', () => {
     });
 
     it('should create category with optional description', () => {
-      const categoryData: CreateCategoryRequest = {
+      const categoryData: any = {
         name: 'Full Category',
         description: 'Full Description'
       };
@@ -128,7 +128,7 @@ describe('Category Service - Unit Tests', () => {
     it('should add category to categories array', () => {
       expect(categories).toHaveLength(0);
 
-      const categoryData: CreateCategoryRequest = {
+      const categoryData: any = {
         name: 'Array Test Category'
       };
 
@@ -139,10 +139,10 @@ describe('Category Service - Unit Tests', () => {
     });
 
     it('should generate unique ids for multiple categories', async () => {
-      const category1Data: CreateCategoryRequest = {
+      const category1Data: any = {
         name: 'Category 1'
       };
-      const category2Data: CreateCategoryRequest = {
+      const category2Data: any = {
         name: 'Category 2'
       };
 
@@ -154,7 +154,7 @@ describe('Category Service - Unit Tests', () => {
     });
 
     it('should set default empty description when not provided', () => {
-      const categoryData: CreateCategoryRequest = {
+      const categoryData: any = {
         name: 'Minimal Category'
       };
 
@@ -166,7 +166,7 @@ describe('Category Service - Unit Tests', () => {
 
   describe('updateCategory', () => {
     it('should return undefined when category does not exist', () => {
-      const updateData: UpdateCategoryRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
@@ -184,7 +184,7 @@ describe('Category Service - Unit Tests', () => {
       };
       categories.push(mockCategory);
 
-      const updateData: UpdateCategoryRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
@@ -205,7 +205,7 @@ describe('Category Service - Unit Tests', () => {
       };
       categories.push(mockCategory);
 
-      const updateData: UpdateCategoryRequest = {
+      const updateData: any = {
         name: 'New Name',
         description: 'New Description'
       };
@@ -226,7 +226,7 @@ describe('Category Service - Unit Tests', () => {
       };
       categories.push(mockCategory);
 
-      const updateData: UpdateCategoryRequest = {
+      const updateData: any = {
         name: 'Updated Category'
       };
 
@@ -246,7 +246,7 @@ describe('Category Service - Unit Tests', () => {
       };
       categories.push(mockCategory);
 
-      const updateData: UpdateCategoryRequest = {
+      const updateData: any = {
         name: 'Updated Category'
       };
 

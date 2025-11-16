@@ -1,6 +1,6 @@
 import * as eventService from '../../src/api/v1/services/eventService';
 import { events } from '../../src/data/event';
-import { Event, CreateEventRequest, UpdateEventRequest } from '../../src/api/v1/models/Event';
+import { Event } from '../../src/api/v1/models/Event';
 
 // Clear the events array before each test
 beforeEach(() => {
@@ -124,7 +124,7 @@ describe('Event Service - Unit Tests', () => {
 
   describe('createEvent', () => {
     it('should create a new event with required fields', () => {
-      const eventData: CreateEventRequest = {
+      const eventData: any = {
         name: 'New Event',
         date: '2024-12-20',
         location: 'New Location'
@@ -143,7 +143,7 @@ describe('Event Service - Unit Tests', () => {
     });
 
     it('should create event with all optional fields', () => {
-      const eventData: CreateEventRequest = {
+      const eventData: any = {
         name: 'Full Event',
         description: 'Full Description',
         date: '2024-12-25',
@@ -162,7 +162,7 @@ describe('Event Service - Unit Tests', () => {
     it('should add event to events array', () => {
       expect(events).toHaveLength(0);
 
-      const eventData: CreateEventRequest = {
+      const eventData: any = {
         name: 'Array Test Event',
         date: '2024-12-30',
         location: 'Array Location'
@@ -175,12 +175,12 @@ describe('Event Service - Unit Tests', () => {
     });
 
     it('should generate unique ids for multiple events', async () => {
-      const event1Data: CreateEventRequest = {
+      const event1Data: any = {
         name: 'Event 1',
         date: '2024-12-15',
         location: 'Location 1'
       };
-      const event2Data: CreateEventRequest = {
+      const event2Data: any = {
         name: 'Event 2',
         date: '2024-12-16',
         location: 'Location 2'
@@ -194,7 +194,7 @@ describe('Event Service - Unit Tests', () => {
     });
 
     it('should set default values for optional fields', () => {
-      const eventData: CreateEventRequest = {
+      const eventData: any = {
         name: 'Minimal Event',
         date: '2024-12-15',
         location: 'Minimal Location'
@@ -209,7 +209,7 @@ describe('Event Service - Unit Tests', () => {
 
   describe('updateEvent', () => {
     it('should return undefined when event does not exist', () => {
-      const updateData: UpdateEventRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
@@ -231,7 +231,7 @@ describe('Event Service - Unit Tests', () => {
       };
       events.push(mockEvent);
 
-      const updateData: UpdateEventRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
@@ -256,7 +256,7 @@ describe('Event Service - Unit Tests', () => {
       };
       events.push(mockEvent);
 
-      const updateData: UpdateEventRequest = {
+      const updateData: any = {
         name: 'New Name',
         description: 'New Description',
         capacity: 200,
@@ -285,7 +285,7 @@ describe('Event Service - Unit Tests', () => {
       };
       events.push(mockEvent);
 
-      const updateData: UpdateEventRequest = {
+      const updateData: any = {
         name: 'Updated Event'
       };
 
@@ -309,7 +309,7 @@ describe('Event Service - Unit Tests', () => {
       };
       events.push(mockEvent);
 
-      const updateData: UpdateEventRequest = {
+      const updateData: any = {
         name: 'Updated Event'
       };
 

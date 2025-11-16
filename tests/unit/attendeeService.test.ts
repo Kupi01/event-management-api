@@ -1,6 +1,6 @@
 import * as attendeeService from '../../src/api/v1/services/attendeeService';
 import { attendees } from '../../src/data/attendeeData';
-import { Attendee, CreateAttendeeRequest, UpdateAttendeeRequest } from '../../src/api/v1/models/Attendee';
+import { Attendee } from '../../src/api/v1/models/Attendee';
 
 // Clear the attendees array before each test
 beforeEach(() => {
@@ -140,7 +140,7 @@ describe('Attendee Service - Unit Tests', () => {
 
   describe('createAttendee', () => {
     it('should create a new attendee with required fields', () => {
-      const attendeeData: CreateAttendeeRequest = {
+      const attendeeData: any = {
         eventId: 'event-1',
         name: 'John Doe',
         email: 'john@example.com'
@@ -160,7 +160,7 @@ describe('Attendee Service - Unit Tests', () => {
     });
 
     it('should create attendee with all optional fields', () => {
-      const attendeeData: CreateAttendeeRequest = {
+      const attendeeData: any = {
         eventId: 'event-1',
         name: 'John Doe',
         email: 'john@example.com',
@@ -177,7 +177,7 @@ describe('Attendee Service - Unit Tests', () => {
     it('should add attendee to attendees array', () => {
       expect(attendees).toHaveLength(0);
 
-      const attendeeData: CreateAttendeeRequest = {
+      const attendeeData: any = {
         eventId: 'event-1',
         name: 'John Doe',
         email: 'john@example.com'
@@ -190,12 +190,12 @@ describe('Attendee Service - Unit Tests', () => {
     });
 
     it('should generate unique ids for multiple attendees', async () => {
-      const attendee1Data: CreateAttendeeRequest = {
+      const attendee1Data: any = {
         eventId: 'event-1',
         name: 'John Doe',
         email: 'john@example.com'
       };
-      const attendee2Data: CreateAttendeeRequest = {
+      const attendee2Data: any = {
         eventId: 'event-1',
         name: 'Jane Smith',
         email: 'jane@example.com'
@@ -211,7 +211,7 @@ describe('Attendee Service - Unit Tests', () => {
 
   describe('updateAttendee', () => {
     it('should return undefined when attendee does not exist', () => {
-      const updateData: UpdateAttendeeRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
@@ -232,7 +232,7 @@ describe('Attendee Service - Unit Tests', () => {
       };
       attendees.push(mockAttendee);
 
-      const updateData: UpdateAttendeeRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
@@ -256,7 +256,7 @@ describe('Attendee Service - Unit Tests', () => {
       };
       attendees.push(mockAttendee);
 
-      const updateData: UpdateAttendeeRequest = {
+      const updateData: any = {
         name: 'Jane Doe',
         email: 'jane@example.com',
         phone: '123-456-7890',
@@ -284,7 +284,7 @@ describe('Attendee Service - Unit Tests', () => {
       };
       attendees.push(mockAttendee);
 
-      const updateData: UpdateAttendeeRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
@@ -307,7 +307,7 @@ describe('Attendee Service - Unit Tests', () => {
       };
       attendees.push(mockAttendee);
 
-      const updateData: UpdateAttendeeRequest = {
+      const updateData: any = {
         name: 'Updated Name'
       };
 
