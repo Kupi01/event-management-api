@@ -1,127 +1,205 @@
 import { Request, Response } from 'express';
-import { EventService } from '../services/eventService';
+import { HTTP_STATUS } from '../../../constants/httpConstants';
+import * as eventService from '../services/eventService';
+import { Event } from '../models/Event';
 
-export class EventController {
-  private eventService: EventService;
-
-  constructor() {
-    this.eventService = new EventService();
+/**
+ * Retrieves all events
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const getAllEvents = (req: Request, res: Response): void => {
+  try {
+    const events: Event[] = eventService.getAllEvents();
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Get all events', 
+      data: events,
+      count: events.length
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to retrieve events'
+    });
   }
+};
 
-  async getAllEvents(req: Request, res: Response): Promise<void> {
-    try {
-      const events = await this.eventService.getAllEvents();
-      res.status(200).json({
-        success: true,
-        data: events,
-        count: events.length
-      });
-    } catch (error) {
-      res.status(500).json({
+/**
+ * Retrieves a specific event by ID
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const getEventById = (req: Request, res: Response): void => {
+  try {
+    const { id } = req.params;
+    const event: Event | undefined = eventService.getEventById(id);
+
+    if (!event) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ 
         success: false,
-        error: 'Failed to fetch events'
+        message: `Event with id ${id} not found` 
       });
+      return;
     }
+
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Event found', 
+      data: event 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to retrieve event'
+    });
   }
+};
 
-  async getEventById(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const event = await this.eventService.getEventById(id);
+/**
+ * Creates a new event after basic validation
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const createEvent = (req: Request, res: Response): void => {
+  try {
+    // Extract and validate required fields
+    const { name, date, location, description, capacity, status } = req.body;
 
-      if (!event) {
-        res.status(404).json({
-          success: false,
-          error: `Event with id ${id} not found`
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: event
-      });
-    } catch (error) {
-      res.status(500).json({
+    // Basic validation - check if required fields exist
+    if (!name) {
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Failed to fetch event'
+        message: 'Event name is required'
       });
+      return;
     }
-  }
 
-  async createEvent(req: Request, res: Response): Promise<void> {
-    try {
-      const result = await this.eventService.createEvent(req.body);
-
-      if (!result.success) {
-        res.status(400).json({
-          success: false,
-          error: result.error
-        });
-        return;
-      }
-
-      res.status(201).json({
-        success: true,
-        message: 'Event created successfully',
-        data: result.data
-      });
-    } catch (error) {
-      res.status(500).json({
+    if (!date) {
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Failed to create event'
+        message: 'Event date is required'
       });
+      return;
     }
-  }
 
-  async updateEvent(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const result = await this.eventService.updateEvent(id, req.body);
-
-      if (!result.success) {
-        res.status(400).json({
-          success: false,
-          error: result.error
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        message: 'Event updated successfully',
-        data: result.data
-      });
-    } catch (error) {
-      res.status(500).json({
+    if (!location) {
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Failed to update event'
+        message: 'Event location is required'
       });
+      return;
     }
+
+    // Explicitly create event data object with only needed properties
+    const eventData: {
+      name: string;
+      date: string;
+      location: string;
+      description?: string;
+      capacity?: number;
+      status?: 'upcoming' | 'ongoing' | 'completed';
+    } = {
+      name,
+      date,
+      location,
+      description,
+      capacity,
+      status
+    };
+
+    const newEvent: Event = eventService.createEvent(eventData);
+    
+    res.status(HTTP_STATUS.CREATED).json({ 
+      success: true,
+      message: 'Event created successfully', 
+      data: newEvent 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to create event'
+    });
   }
+};
 
-  async deleteEvent(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const result = await this.eventService.deleteEvent(id);
+/**
+ * Updates an existing event
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const updateEvent = (req: Request, res: Response): void => {
+  try {
+    const { id } = req.params;
+    const { name, description, date, location, capacity, status } = req.body;
 
-      if (!result.success) {
-        res.status(404).json({
-          success: false,
-          error: result.error
-        });
-        return;
-      }
+    // Explicitly create update data with only updatable properties
+    // This demonstrates Pick<Event, ...> type usage at runtime
+    const updateData: {
+      name?: string;
+      description?: string;
+      date?: string;
+      location?: string;
+      capacity?: number;
+      status?: 'upcoming' | 'ongoing' | 'completed';
+    } = {
+      name,
+      description,
+      date,
+      location,
+      capacity,
+      status
+    };
 
-      res.status(200).json({
-        success: true,
-        message: 'Event deleted successfully'
-      });
-    } catch (error) {
-      res.status(500).json({
+    const updatedEvent: Event | undefined = eventService.updateEvent(id, updateData);
+
+    if (!updatedEvent) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ 
         success: false,
-        error: 'Failed to delete event'
+        message: `Event with id ${id} not found` 
       });
+      return;
     }
+
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Event updated successfully', 
+      data: updatedEvent 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to update event'
+    });
   }
-}
+};
+
+/**
+ * Deletes an event by ID
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const deleteEvent = (req: Request, res: Response): void => {
+  try {
+    const { id } = req.params;
+    const deleted: boolean = eventService.deleteEvent(id);
+
+    if (!deleted) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ 
+        success: false,
+        message: `Event with id ${id} not found` 
+      });
+      return;
+    }
+
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Event deleted successfully' 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to delete event'
+    });
+  }
+};

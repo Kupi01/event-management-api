@@ -1,127 +1,172 @@
 import { Request, Response } from 'express';
-import { CategoryService } from '../services/categoryService';
+import { HTTP_STATUS } from '../../../constants/httpConstants';
+import * as categoryService from '../services/categoryService';
+import { Category } from '../models/Category';
 
-export class CategoryController {
-  private categoryService: CategoryService;
-
-  constructor() {
-    this.categoryService = new CategoryService();
+/**
+ * Retrieves all categories
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const getAllCategories = (req: Request, res: Response): void => {
+  try {
+    const categories: Category[] = categoryService.getAllCategories();
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Get all categories', 
+      data: categories,
+      count: categories.length
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to retrieve categories'
+    });
   }
+};
 
-  async getAllCategories(req: Request, res: Response): Promise<void> {
-    try {
-      const categories = await this.categoryService.getAllCategories();
-      res.status(200).json({
-        success: true,
-        data: categories,
-        count: categories.length
-      });
-    } catch (error) {
-      res.status(500).json({
+/**
+ * Retrieves a specific category by ID
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const getCategoryById = (req: Request, res: Response): void => {
+  try {
+    const { id } = req.params;
+    const category: Category | undefined = categoryService.getCategoryById(id);
+
+    if (!category) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ 
         success: false,
-        error: 'Failed to fetch categories'
+        message: `Category with id ${id} not found` 
       });
+      return;
     }
+
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Category found', 
+      data: category 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to retrieve category'
+    });
   }
+};
 
-  async getCategoryById(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const category = await this.categoryService.getCategoryById(id);
+/**
+ * Creates a new category after basic validation
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const createCategory = (req: Request, res: Response): void => {
+  try {
+    // Extract and validate required fields
+    const { name, description } = req.body;
 
-      if (!category) {
-        res.status(404).json({
-          success: false,
-          error: `Category with id ${id} not found`
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: category
-      });
-    } catch (error) {
-      res.status(500).json({
+    // Basic validation - check if required fields exist
+    if (!name) {
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        error: 'Failed to fetch category'
+        message: 'Category name is required'
       });
+      return;
     }
+
+    // Explicitly create category data object
+    const categoryData: {
+      name: string;
+      description?: string;
+    } = {
+      name,
+      description
+    };
+
+    const newCategory: Category = categoryService.createCategory(categoryData);
+    
+    res.status(HTTP_STATUS.CREATED).json({ 
+      success: true,
+      message: 'Category created successfully', 
+      data: newCategory 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to create category'
+    });
   }
+};
 
-  async createCategory(req: Request, res: Response): Promise<void> {
-    try {
-      const result = await this.categoryService.createCategory(req.body);
+/**
+ * Updates an existing category
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const updateCategory = (req: Request, res: Response): void => {
+  try {
+    const { id } = req.params;
+    const { name, description } = req.body;
 
-      if (!result.success) {
-        res.status(400).json({
-          success: false,
-          error: result.error
-        });
-        return;
-      }
+    // Explicitly create update data with only updatable properties
+    const updateData: {
+      name?: string;
+      description?: string;
+    } = {
+      name,
+      description
+    };
 
-      res.status(201).json({
-        success: true,
-        message: 'Category created successfully',
-        data: result.data
-      });
-    } catch (error) {
-      res.status(500).json({
+    const updatedCategory: Category | undefined = categoryService.updateCategory(id, updateData);
+
+    if (!updatedCategory) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ 
         success: false,
-        error: 'Failed to create category'
+        message: `Category with id ${id} not found` 
       });
+      return;
     }
+
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Category updated successfully', 
+      data: updatedCategory 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to update category'
+    });
   }
+};
 
-  async updateCategory(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const result = await this.categoryService.updateCategory(id, req.body);
+/**
+ * Deletes a category by ID
+ * @param req - Express request object
+ * @param res - Express response object
+ */
+export const deleteCategory = (req: Request, res: Response): void => {
+  try {
+    const { id } = req.params;
+    const deleted: boolean = categoryService.deleteCategory(id);
 
-      if (!result.success) {
-        res.status(400).json({
-          success: false,
-          error: result.error
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        message: 'Category updated successfully',
-        data: result.data
-      });
-    } catch (error) {
-      res.status(500).json({
+    if (!deleted) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({ 
         success: false,
-        error: 'Failed to update category'
+        message: `Category with id ${id} not found` 
       });
+      return;
     }
+
+    res.status(HTTP_STATUS.OK).json({ 
+      success: true,
+      message: 'Category deleted successfully' 
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to delete category'
+    });
   }
-
-  async deleteCategory(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
-      const result = await this.categoryService.deleteCategory(id);
-
-      if (!result.success) {
-        res.status(404).json({
-          success: false,
-          error: result.error
-        });
-        return;
-      }
-
-      res.status(200).json({
-        success: true,
-        message: 'Category deleted successfully'
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: 'Failed to delete category'
-      });
-    }
-  }
-}
+};
