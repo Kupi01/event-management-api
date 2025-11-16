@@ -5,13 +5,3 @@ export interface Category {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface CreateCategoryRequest {
-  name: string;
-  description?: string;
-}
-
-export interface UpdateCategoryRequest {
-  name?: string;
-  description?: string;
-}
