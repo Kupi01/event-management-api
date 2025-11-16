@@ -1,93 +1,54 @@
-import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../../models/Category';
-import { CategoryRepository } from '../repositories/categoryRepository';
-import { CategoryValidation } from '../validation/categoryValidation';
+import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../models/Category';
+import { categories } from '../../../data/category';
 
-export class CategoryService {
-  private categoryRepository: CategoryRepository;
+export const getAllCategories = (): Category[] => {
+  return categories;
+};
 
-  constructor() {
-    this.categoryRepository = new CategoryRepository();
+export const getCategoryById = (id: string): Category | undefined => {
+  return categories.find(c => c.id === id);
+};
+
+export const createCategory = (categoryData: CreateCategoryRequest): Category => {
+  const id = `category-${Date.now()}`;
+  const now = new Date();
+
+  const newCategory: Category = {
+    id,
+    name: categoryData.name,
+    description: categoryData.description || '',
+    createdAt: now,
+    updatedAt: now
+  };
+
+  categories.push(newCategory);
+  return newCategory;
+};
+
+export const updateCategory = (id: string, updateData: UpdateCategoryRequest): Category | undefined => {
+  const index = categories.findIndex(c => c.id === id);
+  
+  if (index === -1) {
+    return undefined;
   }
 
-  async getAllCategories(): Promise<Category[]> {
-    return await this.categoryRepository.getAll();
+  categories[index] = {
+    ...categories[index],
+    ...updateData,
+    id,
+    updatedAt: new Date()
+  };
+
+  return categories[index];
+};
+
+export const deleteCategory = (id: string): boolean => {
+  const index = categories.findIndex(c => c.id === id);
+  
+  if (index === -1) {
+    return false;
   }
 
-  async getCategoryById(id: string): Promise<Category | undefined> {
-    return await this.categoryRepository.getById(id);
-  }
-
-  async createCategory(categoryData: CreateCategoryRequest): Promise<{ success: boolean; data?: Category; error?: string }> {
-    // Validate input
-    const validation = CategoryValidation.validateCreateCategory(categoryData);
-    if (!validation.valid) {
-      return {
-        success: false,
-        error: validation.errors.join(', ')
-      };
-    }
-
-    // Create category object
-    const newCategory: Category = {
-      id: `category-${Date.now()}`,
-      name: categoryData.name,
-      description: categoryData.description || '',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    const created = await this.categoryRepository.create(newCategory);
-    return {
-      success: true,
-      data: created
-    };
-  }
-
-  async updateCategory(id: string, categoryData: UpdateCategoryRequest): Promise<{ success: boolean; data?: Category; error?: string }> {
-    // Validate input
-    const validation = CategoryValidation.validateUpdateCategory(categoryData);
-    if (!validation.valid) {
-      return {
-        success: false,
-        error: validation.errors.join(', ')
-      };
-    }
-
-    // Check if category exists
-    const existingCategory = await this.categoryRepository.getById(id);
-    if (!existingCategory) {
-      return {
-        success: false,
-        error: `Category with id ${id} not found`
-      };
-    }
-
-    // Update category
-    const updated = await this.categoryRepository.update(id, {
-      ...categoryData,
-      updatedAt: new Date()
-    });
-
-    return {
-      success: true,
-      data: updated
-    };
-  }
-
-  async deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
-    // Check if category exists
-    const existingCategory = await this.categoryRepository.getById(id);
-    if (!existingCategory) {
-      return {
-        success: false,
-        error: `Category with id ${id} not found`
-      };
-    }
-
-    // Delete category
-    await this.categoryRepository.delete(id);
-    return {
-      success: true
-    };
-  }
-}
+  categories.splice(index, 1);
+  return true;
+};
