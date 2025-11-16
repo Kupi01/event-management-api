@@ -1,4 +1,4 @@
-import { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../models/Category';
+import { Category } from '../models/Category';
 import { categories } from '../../../data/category';
 
 export const getAllCategories = (): Category[] => {
@@ -9,7 +9,7 @@ export const getCategoryById = (id: string): Category | undefined => {
   return categories.find(c => c.id === id);
 };
 
-export const createCategory = (categoryData: CreateCategoryRequest): Category => {
+export const createCategory = (categoryData: any): Category => {
   const id = `category-${Date.now()}`;
   const now = new Date();
 
@@ -25,7 +25,7 @@ export const createCategory = (categoryData: CreateCategoryRequest): Category =>
   return newCategory;
 };
 
-export const updateCategory = (id: string, updateData: UpdateCategoryRequest): Category | undefined => {
+export const updateCategory = (id: string, updateData: any): Category | undefined => {
   const index = categories.findIndex(c => c.id === id);
   
   if (index === -1) {

@@ -1,4 +1,4 @@
-import { Event, CreateEventRequest, UpdateEventRequest } from '../models/Event';
+import { Event } from '../models/Event';
 import { events } from '../../../data/event';
 
 export const getAllEvents = (): Event[] => {
@@ -9,7 +9,7 @@ export const getEventById = (id: string): Event | undefined => {
   return events.find(e => e.id === id);
 };
 
-export const createEvent = (eventData: CreateEventRequest): Event => {
+export const createEvent = (eventData: any): Event => {
   const id = `event-${Date.now()}`;
   const now = new Date();
 
@@ -29,7 +29,7 @@ export const createEvent = (eventData: CreateEventRequest): Event => {
   return newEvent;
 };
 
-export const updateEvent = (id: string, updateData: UpdateEventRequest): Event | undefined => {
+export const updateEvent = (id: string, updateData: any): Event | undefined => {
   const index = events.findIndex(e => e.id === id);
   
   if (index === -1) {

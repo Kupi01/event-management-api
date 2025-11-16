@@ -1,4 +1,4 @@
-import { Attendee, CreateAttendeeRequest, UpdateAttendeeRequest } from '../models/Attendee';
+import { Attendee } from '../models/Attendee';
 import { attendees } from '../../../data/attendeeData';
 
 export const getAllAttendees = (): Attendee[] => {
@@ -13,7 +13,7 @@ export const getAttendeesByEventId = (eventId: string): Attendee[] => {
   return attendees.filter(a => a.eventId === eventId);
 };
 
-export const createAttendee = (attendeeData: CreateAttendeeRequest): Attendee => {
+export const createAttendee = (attendeeData: any): Attendee => {
   const id = `attendee-${Date.now()}`;
   const now = new Date();
 
@@ -33,7 +33,7 @@ export const createAttendee = (attendeeData: CreateAttendeeRequest): Attendee =>
   return newAttendee;
 };
 
-export const updateAttendee = (id: string, updateData: UpdateAttendeeRequest): Attendee | undefined => {
+export const updateAttendee = (id: string, updateData: any): Attendee | undefined => {
   const index = attendees.findIndex(a => a.id === id);
   
   if (index === -1) {
