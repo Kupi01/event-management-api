@@ -6,10 +6,10 @@ A REST API for managing events and categories. Built with Express and TypeScript
 
 What I've finished:
 - Set up the development environment with TypeScript and Express
-- Created 10 API endpoints for events and categories (full CRUD)
+- Created API endpoints for events and categories (full CRUD)
 - Added Swagger documentation so you can test the API in your browser
 - Made a plan for adding node-cron later (see new-component-plan.md)
-- Wrote 86 tests and they all pass
+- Wrote unit and integration tests and they all pass
 
 ## Project Structure
 
@@ -38,6 +38,10 @@ tests/
 **Categories:**
 - Create, read, update, and delete categories
 - Categories have a name and description
+
+**Attendees:**
+- Create, read, update, and delete attendee
+- attendee have an id and name, and is linked with event id to track.
 
 **Swagger Docs:**
 - Go to http://localhost:3000/api-docs to see all endpoints
@@ -70,18 +74,12 @@ npm start
 ```bash
 # Run all tests
 npm test
-
-# Run tests with coverage report
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
 ```
 
 **Test Results:**
-- 43 tests passing
-- Coverage: >65% (exceeds Milestone 1 requirement)
-- Unit tests: Event & Category services fully covered
+- All tests passing
+- Coverage: >65%
+- Unit tests: Event & Category & Attendee services fully covered
 - Integration tests: API endpoints tested
 
 ## API Endpoints
@@ -107,21 +105,22 @@ npm run test:watch
 ## Examples
 
 Create an event:
+Use postman for this
 ```bash
-curl -X POST http://localhost:3000/api/v1/events \
-  -H "Content-Type: application/json" \
-  -d '{
+POST http://localhost:3000/api/v1/events
+Body - Raw(json)
+  "{
     "name": "Tech Conference 2024",
     "description": "Annual technology conference",
     "date": "2024-12-15",
     "location": "Main Auditorium",
     "capacity": 500
-  }'
+  }"
 ```
 
 Get all events:
 ```bash
-curl http://localhost:3000/api/v1/events
+GET http://localhost:3000/api/v1/events
 ```
 
 ## Tech Stack
