@@ -1,5 +1,5 @@
 import app from './app';
-import { startScheduler } from './services/eventScheduler';
+import { startScheduler } from './api/v1/services/eventScheduler';
 
 const PORT = 3000;
 
