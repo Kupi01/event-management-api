@@ -1,10 +1,10 @@
 import * as categoryService from '../../src/api/v1/services/categoryService';
-import { categories } from '../../src/data/category';
 import { Category } from '../../src/api/v1/models/Category';
 
-// Clear the categories array before each test
+// Note: These tests were written for in-memory storage.
+// With Firestore implementation, these tests need to be updated to mock Firebase.
 beforeEach(() => {
-  categories.length = 0;
+  // TODO: Add Firebase mocking for tests
 });
 
 describe('Category Service - Unit Tests', () => {

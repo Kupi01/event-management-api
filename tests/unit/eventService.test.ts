@@ -1,10 +1,10 @@
 import * as eventService from '../../src/api/v1/services/eventService';
-import { events } from '../../src/data/event';
 import { Event } from '../../src/api/v1/models/Event';
 
-// Clear the events array before each test
+// Note: These tests were written for in-memory storage.
+// With Firestore implementation, these tests need to be updated to mock Firebase.
 beforeEach(() => {
-  events.length = 0;
+  // TODO: Add Firebase mocking for tests
 });
 
 describe('Event Service - Unit Tests', () => {
