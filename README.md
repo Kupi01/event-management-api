@@ -98,6 +98,14 @@ npm test
 - PUT `/api/v1/categories/:id` - Update a category
 - DELETE `/api/v1/categories/:id` - Delete a category
 
+**Attendees:**
+- GET `/api/v1/attendees` - Get all attendees
+- GET `/api/v1/attendees/:id` - Get one attendee
+- GET `/api/v1/attendees/event/:eventId` - Get alll attendees for a specific event
+- POST `/api/v1/attendees` - Create an attendee
+- PUT `/api/v1/attendees/:id` - Update an attendee
+- DELETE `/api/v1/attendees/:id` - Delete an attendee
+
 **Other:**
 - GET `/api-docs` - Swagger documentation
 - GET `/health` - Check if server is running

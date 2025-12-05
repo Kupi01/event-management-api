@@ -1,10 +1,10 @@
 import * as attendeeService from '../../src/api/v1/services/attendeeService';
-import { attendees } from '../../src/data/attendeeData';
 import { Attendee } from '../../src/api/v1/models/Attendee';
 
-// Clear the attendees array before each test
+// Note: These tests were written for in-memory storage.
+// With Firestore implementation, these tests need to be updated to mock Firebase.
 beforeEach(() => {
-  attendees.length = 0;
+  // TODO: Add Firebase mocking for tests
 });
 
 describe('Attendee Service - Unit Tests', () => {

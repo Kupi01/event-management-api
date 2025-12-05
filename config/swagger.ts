@@ -6,7 +6,7 @@ const swaggerOptions: swaggerJsdoc.Options = {
     info: {
       title: 'Event Management API',
       version: '1.0.0',
-      description: 'REST API for managing events and categories. Built with Express.js and TypeScript.',
+      description: 'REST API for managing events, categories, and attendees. Built with Express.js, TypeScript, and Firebase Firestore.',
       contact: {
         name: 'Krupa Patel',
         email: 'support@eventmanagement.com',
@@ -32,12 +32,20 @@ const swaggerOptions: swaggerJsdoc.Options = {
         description: 'Category management endpoints',
       },
       {
+        name: 'Attendees',
+        description: 'Attendee management endpoints',
+      },
+      {
         name: 'Health',
         description: 'Health check endpoints',
       },
     ],
   },
-  apis: ['./src/api/v1/routes/*.ts', './src/app.ts'],
+  apis: [
+    './src/api/v1/routes/*.ts',
+    './src/api/v1/validations/*.ts',
+    './src/app.ts'
+  ],
 };
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions);

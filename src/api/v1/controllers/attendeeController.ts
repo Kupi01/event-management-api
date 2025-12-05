@@ -1,27 +1,34 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { HTTP_STATUS } from '../../../constants/httpConstants';
 import * as attendeeService from '../services/attendeeService';
 import { Attendee } from '../models/Attendee';
 
 /**
- * Retrieves all attendees
+ * Retrieves all attendees with optional filtering and sorting
  * @param req - Express request object
  * @param res - Express response object
+ * @param next - Express next function
  */
-export const getAllAttendees = (req: Request, res: Response): void => {
+export const getAllAttendees = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const attendees: Attendee[] = attendeeService.getAllAttendees();
+    const { eventId, status, sortBy, order } = req.query;
+
+    const queryParams: attendeeService.AttendeeQueryParams = {
+      eventId: eventId as string | undefined,
+      status: status as 'registered' | 'attended' | 'cancelled' | undefined,
+      sortBy: sortBy as 'name' | 'registrationDate' | undefined,
+      order: order as 'asc' | 'desc' | undefined
+    };
+
+    const attendees: Attendee[] = await attendeeService.getAllAttendees(queryParams);
     res.status(HTTP_STATUS.OK).json({ 
       success: true,
-      message: 'Get all attendees', 
+      message: 'Attendees retrieved successfully', 
       data: attendees,
       count: attendees.length
     });
   } catch (error) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Failed to retrieve attendees'
-    });
+    next(error);
   }
 };
 
@@ -29,11 +36,12 @@ export const getAllAttendees = (req: Request, res: Response): void => {
  * Retrieves a specific attendee by ID
  * @param req - Express request object
  * @param res - Express response object
+ * @param next - Express next function
  */
-export const getAttendeeById = (req: Request, res: Response): void => {
+export const getAttendeeById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const attendee: Attendee | undefined = attendeeService.getAttendeeById(id);
+    const attendee: Attendee | undefined = await attendeeService.getAttendeeById(id);
 
     if (!attendee) {
       res.status(HTTP_STATUS.NOT_FOUND).json({ 
@@ -45,14 +53,11 @@ export const getAttendeeById = (req: Request, res: Response): void => {
 
     res.status(HTTP_STATUS.OK).json({ 
       success: true,
-      message: 'Attendee found', 
+      message: 'Attendee retrieved successfully', 
       data: attendee 
     });
   } catch (error) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Failed to retrieve attendee'
-    });
+    next(error);
   }
 };
 
@@ -60,75 +65,33 @@ export const getAttendeeById = (req: Request, res: Response): void => {
  * Retrieves all attendees for a specific event
  * @param req - Express request object
  * @param res - Express response object
+ * @param next - Express next function
  */
-export const getAttendeesByEventId = (req: Request, res: Response): void => {
+export const getAttendeesByEventId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { eventId } = req.params;
-    const attendees: Attendee[] = attendeeService.getAttendeesByEventId(eventId);
+    const attendees: Attendee[] = await attendeeService.getAttendeesByEventId(eventId);
 
     res.status(HTTP_STATUS.OK).json({ 
       success: true,
-      message: `Get all attendees for event ${eventId}`, 
+      message: `Attendees for event ${eventId} retrieved successfully`, 
       data: attendees,
       count: attendees.length
     });
   } catch (error) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Failed to retrieve attendees'
-    });
+    next(error);
   }
 };
 
 /**
- * Creates a new attendee after basic validation
+ * Creates a new attendee (already validated by middleware)
  * @param req - Express request object
  * @param res - Express response object
+ * @param next - Express next function
  */
-export const createAttendee = (req: Request, res: Response): void => {
+export const createAttendee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { eventId, name, email, phone, status } = req.body;
-
-    // Basic validation
-    if (!eventId) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: 'Event ID is required'
-      });
-      return;
-    }
-
-    if (!name) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: 'Attendee name is required'
-      });
-      return;
-    }
-
-    if (!email) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: 'Email is required'
-      });
-      return;
-    }
-
-    const attendeeData: {
-      eventId: string;
-      name: string;
-      email: string;
-      phone?: string;
-      status?: 'registered' | 'attended' | 'cancelled';
-    } = {
-      eventId,
-      name,
-      email,
-      phone,
-      status
-    };
-
-    const newAttendee: Attendee = attendeeService.createAttendee(attendeeData);
+    const newAttendee: Attendee = await attendeeService.createAttendee(req.body);
     
     res.status(HTTP_STATUS.CREATED).json({ 
       success: true,
@@ -136,36 +99,20 @@ export const createAttendee = (req: Request, res: Response): void => {
       data: newAttendee 
     });
   } catch (error) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Failed to create attendee'
-    });
+    next(error);
   }
 };
 
 /**
- * Updates an existing attendee
+ * Updates an existing attendee (already validated by middleware)
  * @param req - Express request object
  * @param res - Express response object
+ * @param next - Express next function
  */
-export const updateAttendee = (req: Request, res: Response): void => {
+export const updateAttendee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, email, phone, status } = req.body;
-
-    const updateData: {
-      name?: string;
-      email?: string;
-      phone?: string;
-      status?: 'registered' | 'attended' | 'cancelled';
-    } = {
-      name,
-      email,
-      phone,
-      status
-    };
-
-    const updatedAttendee: Attendee | undefined = attendeeService.updateAttendee(id, updateData);
+    const updatedAttendee: Attendee | undefined = await attendeeService.updateAttendee(id, req.body);
 
     if (!updatedAttendee) {
       res.status(HTTP_STATUS.NOT_FOUND).json({ 
@@ -181,10 +128,7 @@ export const updateAttendee = (req: Request, res: Response): void => {
       data: updatedAttendee 
     });
   } catch (error) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Failed to update attendee'
-    });
+    next(error);
   }
 };
 
@@ -192,11 +136,12 @@ export const updateAttendee = (req: Request, res: Response): void => {
  * Deletes an attendee by ID
  * @param req - Express request object
  * @param res - Express response object
+ * @param next - Express next function
  */
-export const deleteAttendee = (req: Request, res: Response): void => {
+export const deleteAttendee = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const deleted: boolean = attendeeService.deleteAttendee(id);
+    const deleted: boolean = await attendeeService.deleteAttendee(id);
 
     if (!deleted) {
       res.status(HTTP_STATUS.NOT_FOUND).json({ 
@@ -211,9 +156,6 @@ export const deleteAttendee = (req: Request, res: Response): void => {
       message: 'Attendee deleted successfully' 
     });
   } catch (error) {
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Failed to delete attendee'
-    });
+    next(error);
   }
 };

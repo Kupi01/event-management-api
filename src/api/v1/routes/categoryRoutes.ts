@@ -6,8 +6,19 @@ import {
   updateCategory,
   deleteCategory
 } from '../controllers/categoryController';
+import { validateRequest } from '../middleware/validateRequest';
+import { createCategorySchema, updateCategorySchema } from '../validations/categorySchema';
+import authenticate from '../middleware/authenticate';
+import isAuthorized from '../middleware/authorize';
 
 const router: Router = express.Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Categories
+ *   description: Category management endpoints
+ */
 
 /**
  * @swagger
@@ -15,10 +26,39 @@ const router: Router = express.Router();
  *   get:
  *     summary: Get all categories
  *     tags: [Categories]
- *     description: Retrieve a list of all categories
+ *     description: Retrieve a list of all categories with optional sorting
+ *     parameters:
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [name]
+ *         description: Sort field
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Sort order
  *     responses:
  *       200:
  *         description: List of categories retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Category'
+ *                 count:
+ *                   type: number
  */
 router.get('/categories', getAllCategories);
 
@@ -38,7 +78,18 @@ router.get('/categories', getAllCategories);
  *         description: Category ID
  *     responses:
  *       200:
- *         description: Category found
+ *         description: Category retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Category'
  *       404:
  *         description: Category not found
  */
@@ -62,13 +113,31 @@ router.get('/categories/:id', getCategoryById);
  *             properties:
  *               name:
  *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 50
+ *                 example: Technology
  *               description:
  *                 type: string
+ *                 maxLength: 300
+ *                 example: Technology-related events
  *     responses:
  *       201:
  *         description: Category created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Category'
+ *       400:
+ *         description: Validation error
  */
-router.post('/categories', createCategory);
+router.post('/categories', authenticate, isAuthorized({ hasRole: ['admin'] }), validateRequest(createCategorySchema), createCategory);
 
 /**
  * @swagger
@@ -84,13 +153,26 @@ router.post('/categories', createCategory);
  *         schema:
  *           type: string
  *         description: Category ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Category updated successfully
+ *       400:
+ *         description: Validation error
  *       404:
  *         description: Category not found
  */
-router.put('/categories/:id', updateCategory);
+router.put('/categories/:id', authenticate, isAuthorized({ hasRole: ['admin'] }), validateRequest(updateCategorySchema), updateCategory);
 
 /**
  * @swagger
@@ -112,6 +194,6 @@ router.put('/categories/:id', updateCategory);
  *       404:
  *         description: Category not found
  */
-router.delete('/categories/:id', deleteCategory);
+router.delete('/categories/:id', authenticate, isAuthorized({ hasRole: ['admin'] }), deleteCategory);
 
 export default router;
