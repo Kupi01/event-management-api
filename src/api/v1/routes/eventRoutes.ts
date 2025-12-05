@@ -8,9 +8,8 @@ import {
 } from '../controllers/eventController';
 import { validateRequest } from '../middleware/validateRequest';
 import { createEventSchema, updateEventSchema } from '../validations/eventSchema';
-// Note: Authentication is optional for this simple event management API
-// import { authenticate } from '../middleware/authenticate';
-// import { authorize } from '../middleware/authorize';
+import authenticate from '../middleware/authenticate';
+import isAuthorized from '../middleware/authorize';
 
 const router: Router = express.Router();
 
@@ -178,7 +177,7 @@ router.get('/events/:id', getEventById);
  *       500:
  *         description: Server error
  */
-router.post('/events', validateRequest(createEventSchema), createEvent);
+router.post('/events', authenticate, isAuthorized({ hasRole: ['admin', 'organizer'] }), validateRequest(createEventSchema), createEvent);
 
 /**
  * @swagger
@@ -225,7 +224,7 @@ router.post('/events', validateRequest(createEventSchema), createEvent);
  *       500:
  *         description: Server error
  */
-router.put('/events/:id', validateRequest(updateEventSchema), updateEvent);
+router.put('/events/:id', authenticate, isAuthorized({ hasRole: ['admin', 'organizer'] }), validateRequest(updateEventSchema), updateEvent);
 
 /**
  * @swagger
@@ -249,6 +248,6 @@ router.put('/events/:id', validateRequest(updateEventSchema), updateEvent);
  *       500:
  *         description: Server error
  */
-router.delete('/events/:id', deleteEvent);
+router.delete('/events/:id', authenticate, isAuthorized({ hasRole: ['admin'] }), deleteEvent);
 
 export default router;

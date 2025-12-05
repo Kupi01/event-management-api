@@ -1,73 +1,64 @@
+// External library imports
 import { Request, Response, NextFunction } from "express";
-import { getAuth } from "../../../../config/firebase";
+import { DecodedIdToken } from "firebase-admin/auth";
 import { AuthenticationError } from "../errors/errors";
 import { getErrorMessage } from "../errors/errorUtils";
 
-/**
- * Extended Express Request with user information
- */
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    uid: string;
-    email?: string;
-    role?: string;
-  };
-}
+// Internal module imports
+import { getAuth } from "../../../../config/firebase";
 
 /**
- * Middleware to authenticate Firebase ID tokens
- * Verifies the token from the Authorization header and attaches user info to request
- * @param req - Express request object
- * @param res - Express response object
- * @param next - Express next function
- * @throws AuthenticationError if token is missing or invalid
+ * Middleware to authenticate a user using a Firebase ID token.
+ * Now integrated with centralized error handling system.
+ *
+ * This middleware:
+ * - Extracts the token from the Authorization header
+ * - Verifies the token with Firebase Auth
+ * - Stores user information in res.locals for downstream middleware
+ * - Throws standardized AuthenticationError for any failures
+ *
+ * @param {Request} req - The request object.
+ * @param {Response} res - The response object.
+ * @param {NextFunction} next - The next middleware function.
+ * @returns {Promise<void>}
  */
-export const authenticate = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
+const authenticate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
 ): Promise<void> => {
-  try {
-    // Extract token from Authorization header
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AuthenticationError('No token provided. Please include a Bearer token in the Authorization header');
+    try {
+        const authHeader = req.headers.authorization;
+        const token: string | undefined = authHeader?.startsWith("Bearer ")
+            ? authHeader.split(" ")[1]
+            : undefined;
+
+        if (!token) {
+            throw new AuthenticationError(
+                "Unauthorized: No token provided",
+                "TOKEN_NOT_FOUND"
+            );
+        }
+
+        const decodedToken: DecodedIdToken = await getAuth().verifyIdToken(
+            token
+        );
+        res.locals.uid = decodedToken.uid;
+        res.locals.role = decodedToken.role;
+        next();
+    } catch (error: unknown) {
+        if (error instanceof AuthenticationError) {
+            // Re-throw authentication errors to be handled by error middleware
+            next(error);
+        } else {
+            next(
+                new AuthenticationError(
+                    `Unauthorized: ${getErrorMessage(error)}`,
+                    "TOKEN_INVALID"
+                )
+            );
+        }
     }
-
-    const token = authHeader.split('Bearer ')[1];
-
-    if (!token) {
-      throw new AuthenticationError('Invalid token format');
-    }
-
-    // Verify the token with Firebase Auth
-    const decodedToken = await getAuth().verifyIdToken(token);
-
-    // Attach user information to request
-    req.user = {
-      uid: decodedToken.uid,
-      email: decodedToken.email,
-      role: decodedToken.role || 'user' // Default role is 'user'
-    };
-
-    next();
-  } catch (error) {
-    if (error instanceof AuthenticationError) {
-      res.status(error.statusCode).json({
-        success: false,
-        message: error.message,
-        errorCode: error.errorCode
-      });
-      return;
-    }
-
-    // Handle Firebase-specific errors
-    const errorMessage = getErrorMessage(error);
-    res.status(401).json({
-      success: false,
-      message: `Authentication failed: ${errorMessage}`,
-      errorCode: 'AUTHENTICATION_ERROR'
-    });
-  }
 };
+
+export default authenticate;

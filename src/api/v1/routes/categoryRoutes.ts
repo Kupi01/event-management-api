@@ -8,6 +8,8 @@ import {
 } from '../controllers/categoryController';
 import { validateRequest } from '../middleware/validateRequest';
 import { createCategorySchema, updateCategorySchema } from '../validations/categorySchema';
+import authenticate from '../middleware/authenticate';
+import isAuthorized from '../middleware/authorize';
 
 const router: Router = express.Router();
 
@@ -135,7 +137,7 @@ router.get('/categories/:id', getCategoryById);
  *       400:
  *         description: Validation error
  */
-router.post('/categories', validateRequest(createCategorySchema), createCategory);
+router.post('/categories', authenticate, isAuthorized({ hasRole: ['admin'] }), validateRequest(createCategorySchema), createCategory);
 
 /**
  * @swagger
@@ -170,7 +172,7 @@ router.post('/categories', validateRequest(createCategorySchema), createCategory
  *       404:
  *         description: Category not found
  */
-router.put('/categories/:id', validateRequest(updateCategorySchema), updateCategory);
+router.put('/categories/:id', authenticate, isAuthorized({ hasRole: ['admin'] }), validateRequest(updateCategorySchema), updateCategory);
 
 /**
  * @swagger
@@ -192,6 +194,6 @@ router.put('/categories/:id', validateRequest(updateCategorySchema), updateCateg
  *       404:
  *         description: Category not found
  */
-router.delete('/categories/:id', deleteCategory);
+router.delete('/categories/:id', authenticate, isAuthorized({ hasRole: ['admin'] }), deleteCategory);
 
 export default router;

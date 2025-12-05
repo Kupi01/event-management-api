@@ -9,6 +9,8 @@ import {
 } from '../controllers/attendeeController';
 import { validateRequest } from '../middleware/validateRequest';
 import { createAttendeeSchema, updateAttendeeSchema } from '../validations/attendeeSchema';
+import authenticate from '../middleware/authenticate';
+import isAuthorized from '../middleware/authorize';
 
 const router: Router = express.Router();
 
@@ -195,7 +197,7 @@ router.get('/events/:eventId/attendees', getAttendeesByEventId);
  *       400:
  *         description: Validation error
  */
-router.post('/attendees', validateRequest(createAttendeeSchema), createAttendee);
+router.post('/attendees', authenticate, validateRequest(createAttendeeSchema), createAttendee);
 
 /**
  * @swagger
@@ -238,7 +240,7 @@ router.post('/attendees', validateRequest(createAttendeeSchema), createAttendee)
  *       404:
  *         description: Attendee not found
  */
-router.put('/attendees/:id', validateRequest(updateAttendeeSchema), updateAttendee);
+router.put('/attendees/:id', authenticate, isAuthorized({ hasRole: ['admin', 'organizer'], allowSameUser: true }), validateRequest(updateAttendeeSchema), updateAttendee);
 
 /**
  * @swagger
@@ -260,6 +262,6 @@ router.put('/attendees/:id', validateRequest(updateAttendeeSchema), updateAttend
  *       404:
  *         description: Attendee not found
  */
-router.delete('/attendees/:id', deleteAttendee);
+router.delete('/attendees/:id', authenticate, isAuthorized({ hasRole: ['admin'] }), deleteAttendee);
 
 export default router;
