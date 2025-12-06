@@ -6,7 +6,7 @@ export interface AuthorizationOptions {
     /**
      * Array of roles that are allowed to access the resource
      */
-    hasRole: string[];
+    hasRole: Array<"admin" | "organizer" | "user">;
     
     /**
      * Whether to allow users to access their own resources
